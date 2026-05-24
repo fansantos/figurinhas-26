@@ -133,12 +133,16 @@
   .search-input-wrap {
     display: flex; gap: 8px;
   }
+  .search-input-inner {
+    position: relative;
+    flex: 1;
+  }
   .search-input {
     flex: 1;
     font-family: 'JetBrains Mono', monospace;
     font-size: 22px;
     font-weight: 500;
-    padding: 14px 16px;
+    padding: 14px 48px 14px 16px;
     border: 2px solid var(--ink);
     border-radius: 8px;
     background: var(--bg);
@@ -153,6 +157,29 @@
     border-color: var(--accent-deep);
   }
   .search-input::placeholder { color: var(--ink-mute); font-weight: 400; }
+  .search-clear {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--ink-mute);
+    color: var(--bg);
+    border-radius: 50%;
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 600;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    padding-bottom: 2px;
+  }
+  .search-clear.show { display: flex; }
+  .search-clear:active { background: var(--ink); }
   .search-hint {
     margin-top: 10px;
     font-size: 12px;
@@ -222,6 +249,31 @@
   .btn-danger { background: var(--danger); color: white; }
 
   /* TEAMS VIEW */
+  .teams-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 4px 2px;
+  }
+  .teams-count {
+    font-size: 11px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+  .teams-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+  }
+  .teams-toggle input { accent-color: var(--ink); cursor: pointer; }
   .teams-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -497,16 +549,26 @@
     <div class="search-card">
       <div class="search-label">Digite o ID da figurinha</div>
       <div class="search-input-wrap">
-        <input type="text" class="search-input mono" id="searchInput"
-               placeholder="BRA 7" autocomplete="off" autocapitalize="characters" inputmode="text">
+        <div class="search-input-inner">
+          <input type="text" class="search-input mono" id="searchInput"
+                 placeholder="BRA 7" autocomplete="off" autocapitalize="characters" inputmode="text">
+          <button class="search-clear" id="searchClear" aria-label="Limpar" type="button">×</button>
+        </div>
       </div>
-      <div class="search-hint">Ex: BRA 7, ARG 12, FWC 00, FWC 19</div>
+      <div class="search-hint">Ex: BRA 7, ARG 12, FWC 00, FWC 19, CC 5</div>
     </div>
     <div class="search-result" id="searchResult"></div>
   </section>
 
   <!-- TIMES -->
   <section class="view" id="view-times">
+    <div class="teams-toolbar">
+      <div class="teams-count mono" id="teamsCount"></div>
+      <label class="teams-toggle">
+        <input type="checkbox" id="showCompleteToggle">
+        <span>Mostrar completos</span>
+      </label>
+    </div>
     <div class="teams-grid" id="teamsGrid"></div>
   </section>
 
@@ -531,6 +593,14 @@
       </div>
     </div>
     <div class="specials-grid" id="specialsGrid"></div>
+
+    <div class="td-header" style="margin-top: 28px">
+      <div class="td-info">
+        <div class="td-name">🥤 Coca-Cola</div>
+        <div class="td-meta mono" id="cocacolaMeta">0/14 · não conta nas 980 oficiais</div>
+      </div>
+    </div>
+    <div class="specials-grid" id="cocacolaGrid"></div>
   </section>
 
   <!-- CONFIG -->
@@ -590,61 +660,66 @@
 // Cada time: 19 cromos. Especiais: 68. Total: 48*19 + 68 = 980 ✓
 // ========================================================================
 const TEAMS = [
-  // Anfitriões
-  { code: 'CAN', name: 'Canadá', flag: '🇨🇦', confederacao: 'Concacaf' },
-  { code: 'MEX', name: 'México', flag: '🇲🇽', confederacao: 'Concacaf' },
-  { code: 'USA', name: 'Estados Unidos', flag: '🇺🇸', confederacao: 'Concacaf' },
-  // Conmebol
-  { code: 'ARG', name: 'Argentina', flag: '🇦🇷', confederacao: 'Conmebol' },
-  { code: 'BRA', name: 'Brasil', flag: '🇧🇷', confederacao: 'Conmebol' },
-  { code: 'COL', name: 'Colômbia', flag: '🇨🇴', confederacao: 'Conmebol' },
-  { code: 'ECU', name: 'Equador', flag: '🇪🇨', confederacao: 'Conmebol' },
-  { code: 'PAR', name: 'Paraguai', flag: '🇵🇾', confederacao: 'Conmebol' },
-  { code: 'URU', name: 'Uruguai', flag: '🇺🇾', confederacao: 'Conmebol' },
-  // Concacaf (além dos anfitriões)
-  { code: 'CRC', name: 'Costa Rica', flag: '🇨🇷', confederacao: 'Concacaf' },
-  { code: 'PAN', name: 'Panamá', flag: '🇵🇦', confederacao: 'Concacaf' },
-  // UEFA
-  { code: 'ENG', name: 'Inglaterra', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', confederacao: 'UEFA' },
-  { code: 'FRA', name: 'França', flag: '🇫🇷', confederacao: 'UEFA' },
-  { code: 'GER', name: 'Alemanha', flag: '🇩🇪', confederacao: 'UEFA' },
-  { code: 'ESP', name: 'Espanha', flag: '🇪🇸', confederacao: 'UEFA' },
-  { code: 'POR', name: 'Portugal', flag: '🇵🇹', confederacao: 'UEFA' },
-  { code: 'NED', name: 'Holanda', flag: '🇳🇱', confederacao: 'UEFA' },
-  { code: 'ITA', name: 'Itália', flag: '🇮🇹', confederacao: 'UEFA' },
-  { code: 'BEL', name: 'Bélgica', flag: '🇧🇪', confederacao: 'UEFA' },
-  { code: 'CRO', name: 'Croácia', flag: '🇭🇷', confederacao: 'UEFA' },
-  { code: 'POL', name: 'Polônia', flag: '🇵🇱', confederacao: 'UEFA' },
-  { code: 'SUI', name: 'Suíça', flag: '🇨🇭', confederacao: 'UEFA' },
-  { code: 'AUT', name: 'Áustria', flag: '🇦🇹', confederacao: 'UEFA' },
-  { code: 'DEN', name: 'Dinamarca', flag: '🇩🇰', confederacao: 'UEFA' },
-  { code: 'SRB', name: 'Sérvia', flag: '🇷🇸', confederacao: 'UEFA' },
-  { code: 'TUR', name: 'Turquia', flag: '🇹🇷', confederacao: 'UEFA' },
-  { code: 'NOR', name: 'Noruega', flag: '🇳🇴', confederacao: 'UEFA' },
-  { code: 'BIH', name: 'Bósnia', flag: '🇧🇦', confederacao: 'UEFA' },
-  { code: 'WAL', name: 'País de Gales', flag: '🏴󠁧󠁢󠁷󠁬󠁳󠁿', confederacao: 'UEFA' },
-  { code: 'SCO', name: 'Escócia', flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿', confederacao: 'UEFA' },
-  // CAF
-  { code: 'MAR', name: 'Marrocos', flag: '🇲🇦', confederacao: 'CAF' },
-  { code: 'SEN', name: 'Senegal', flag: '🇸🇳', confederacao: 'CAF' },
-  { code: 'TUN', name: 'Tunísia', flag: '🇹🇳', confederacao: 'CAF' },
-  { code: 'EGY', name: 'Egito', flag: '🇪🇬', confederacao: 'CAF' },
-  { code: 'NGA', name: 'Nigéria', flag: '🇳🇬', confederacao: 'CAF' },
-  { code: 'GHA', name: 'Gana', flag: '🇬🇭', confederacao: 'CAF' },
-  { code: 'CIV', name: 'Costa do Marfim', flag: '🇨🇮', confederacao: 'CAF' },
-  { code: 'CMR', name: 'Camarões', flag: '🇨🇲', confederacao: 'CAF' },
-  { code: 'ALG', name: 'Argélia', flag: '🇩🇿', confederacao: 'CAF' },
-  // AFC
-  { code: 'JPN', name: 'Japão', flag: '🇯🇵', confederacao: 'AFC' },
-  { code: 'KOR', name: 'Coreia do Sul', flag: '🇰🇷', confederacao: 'AFC' },
-  { code: 'IRN', name: 'Irã', flag: '🇮🇷', confederacao: 'AFC' },
-  { code: 'AUS', name: 'Austrália', flag: '🇦🇺', confederacao: 'AFC' },
-  { code: 'KSA', name: 'Arábia Saudita', flag: '🇸🇦', confederacao: 'AFC' },
-  { code: 'QAT', name: 'Catar', flag: '🇶🇦', confederacao: 'AFC' },
-  { code: 'UZB', name: 'Uzbequistão', flag: '🇺🇿', confederacao: 'AFC' },
-  { code: 'JOR', name: 'Jordânia', flag: '🇯🇴', confederacao: 'AFC' },
-  // OFC
-  { code: 'NZL', name: 'Nova Zelândia', flag: '🇳🇿', confederacao: 'OFC' },
+  // Grupo A
+  { code: 'MEX', name: 'México', flag: '🇲🇽', confederacao: 'Concacaf', grupo: 'A' },
+  { code: 'RSA', name: 'África do Sul', flag: '🇿🇦', confederacao: 'CAF', grupo: 'A' },
+  { code: 'KOR', name: 'Coreia do Sul', flag: '🇰🇷', confederacao: 'AFC', grupo: 'A' },
+  { code: 'CZE', name: 'República Tcheca', flag: '🇨🇿', confederacao: 'UEFA', grupo: 'A' },
+  // Grupo B
+  { code: 'CAN', name: 'Canadá', flag: '🇨🇦', confederacao: 'Concacaf', grupo: 'B' },
+  { code: 'BIH', name: 'Bósnia e Herzegovina', flag: '🇧🇦', confederacao: 'UEFA', grupo: 'B' },
+  { code: 'QAT', name: 'Catar', flag: '🇶🇦', confederacao: 'AFC', grupo: 'B' },
+  { code: 'SUI', name: 'Suíça', flag: '🇨🇭', confederacao: 'UEFA', grupo: 'B' },
+  // Grupo C
+  { code: 'BRA', name: 'Brasil', flag: '🇧🇷', confederacao: 'Conmebol', grupo: 'C' },
+  { code: 'MAR', name: 'Marrocos', flag: '🇲🇦', confederacao: 'CAF', grupo: 'C' },
+  { code: 'HAI', name: 'Haiti', flag: '🇭🇹', confederacao: 'Concacaf', grupo: 'C' },
+  { code: 'SCO', name: 'Escócia', flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿', confederacao: 'UEFA', grupo: 'C' },
+  // Grupo D
+  { code: 'USA', name: 'Estados Unidos', flag: '🇺🇸', confederacao: 'Concacaf', grupo: 'D' },
+  { code: 'PAR', name: 'Paraguai', flag: '🇵🇾', confederacao: 'Conmebol', grupo: 'D' },
+  { code: 'AUS', name: 'Austrália', flag: '🇦🇺', confederacao: 'AFC', grupo: 'D' },
+  { code: 'TUR', name: 'Turquia', flag: '🇹🇷', confederacao: 'UEFA', grupo: 'D' },
+  // Grupo E
+  { code: 'GER', name: 'Alemanha', flag: '🇩🇪', confederacao: 'UEFA', grupo: 'E' },
+  { code: 'CUW', name: 'Curaçao', flag: '🇨🇼', confederacao: 'Concacaf', grupo: 'E' },
+  { code: 'CIV', name: 'Costa do Marfim', flag: '🇨🇮', confederacao: 'CAF', grupo: 'E' },
+  { code: 'ECU', name: 'Equador', flag: '🇪🇨', confederacao: 'Conmebol', grupo: 'E' },
+  // Grupo F
+  { code: 'NED', name: 'Holanda', flag: '🇳🇱', confederacao: 'UEFA', grupo: 'F' },
+  { code: 'JPN', name: 'Japão', flag: '🇯🇵', confederacao: 'AFC', grupo: 'F' },
+  { code: 'SWE', name: 'Suécia', flag: '🇸🇪', confederacao: 'UEFA', grupo: 'F' },
+  { code: 'TUN', name: 'Tunísia', flag: '🇹🇳', confederacao: 'CAF', grupo: 'F' },
+  // Grupo G
+  { code: 'BEL', name: 'Bélgica', flag: '🇧🇪', confederacao: 'UEFA', grupo: 'G' },
+  { code: 'EGY', name: 'Egito', flag: '🇪🇬', confederacao: 'CAF', grupo: 'G' },
+  { code: 'IRN', name: 'Irã', flag: '🇮🇷', confederacao: 'AFC', grupo: 'G' },
+  { code: 'NZL', name: 'Nova Zelândia', flag: '🇳🇿', confederacao: 'OFC', grupo: 'G' },
+  // Grupo H
+  { code: 'ESP', name: 'Espanha', flag: '🇪🇸', confederacao: 'UEFA', grupo: 'H' },
+  { code: 'CPV', name: 'Cabo Verde', flag: '🇨🇻', confederacao: 'CAF', grupo: 'H' },
+  { code: 'KSA', name: 'Arábia Saudita', flag: '🇸🇦', confederacao: 'AFC', grupo: 'H' },
+  { code: 'URU', name: 'Uruguai', flag: '🇺🇾', confederacao: 'Conmebol', grupo: 'H' },
+  // Grupo I
+  { code: 'FRA', name: 'França', flag: '🇫🇷', confederacao: 'UEFA', grupo: 'I' },
+  { code: 'SEN', name: 'Senegal', flag: '🇸🇳', confederacao: 'CAF', grupo: 'I' },
+  { code: 'IRQ', name: 'Iraque', flag: '🇮🇶', confederacao: 'AFC', grupo: 'I' },
+  { code: 'NOR', name: 'Noruega', flag: '🇳🇴', confederacao: 'UEFA', grupo: 'I' },
+  // Grupo J
+  { code: 'ARG', name: 'Argentina', flag: '🇦🇷', confederacao: 'Conmebol', grupo: 'J' },
+  { code: 'ALG', name: 'Argélia', flag: '🇩🇿', confederacao: 'CAF', grupo: 'J' },
+  { code: 'AUT', name: 'Áustria', flag: '🇦🇹', confederacao: 'UEFA', grupo: 'J' },
+  { code: 'JOR', name: 'Jordânia', flag: '🇯🇴', confederacao: 'AFC', grupo: 'J' },
+  // Grupo K
+  { code: 'POR', name: 'Portugal', flag: '🇵🇹', confederacao: 'UEFA', grupo: 'K' },
+  { code: 'COD', name: 'RD Congo', flag: '🇨🇩', confederacao: 'CAF', grupo: 'K' },
+  { code: 'UZB', name: 'Uzbequistão', flag: '🇺🇿', confederacao: 'AFC', grupo: 'K' },
+  { code: 'COL', name: 'Colômbia', flag: '🇨🇴', confederacao: 'Conmebol', grupo: 'K' },
+  // Grupo L
+  { code: 'ENG', name: 'Inglaterra', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', confederacao: 'UEFA', grupo: 'L' },
+  { code: 'CRO', name: 'Croácia', flag: '🇭🇷', confederacao: 'UEFA', grupo: 'L' },
+  { code: 'GHA', name: 'Gana', flag: '🇬🇭', confederacao: 'CAF', grupo: 'L' },
+  { code: 'PAN', name: 'Panamá', flag: '🇵🇦', confederacao: 'Concacaf', grupo: 'L' },
 ];
 
 const STICKERS_PER_TEAM = 20;
@@ -652,6 +727,9 @@ const SPECIALS_COUNT = 19;
 const SPECIALS_PREFIX = 'FWC';
 // Cromo extra: FWC 00 (capa do álbum / cromo institucional especial)
 const HAS_FWC_ZERO = true;
+// Coca-Cola: CC1-CC14 (figurinhas das páginas 112-113)
+const COCACOLA_COUNT = 14;
+const COCACOLA_PREFIX = 'CC';
 
 // ========================================================================
 // ESTADO
@@ -660,7 +738,7 @@ const STORAGE_KEY = 'figurinhasCopa2026.v1';
 const META_KEY = 'figurinhasCopa2026.meta.v1';
 let owned = new Set();
 let currentTeam = null;
-let meta = { lastExportAt: null, changesSinceExport: 0, dismissedAt: null };
+let meta = { lastExportAt: null, changesSinceExport: 0, dismissedAt: null, showComplete: false };
 
 // Regras do lembrete
 const REMINDER_DAYS = 7;        // aparece após N dias sem export...
@@ -725,6 +803,14 @@ function specialsProgress() {
 }
 function specialsTotal() { return SPECIALS_COUNT + (HAS_FWC_ZERO ? 1 : 0); }
 
+function cocacolaProgress() {
+  let count = 0;
+  for (let i = 1; i <= COCACOLA_COUNT; i++) {
+    if (owned.has(`${COCACOLA_PREFIX}-${i}`)) count++;
+  }
+  return count;
+}
+
 function parseStickerId(input) {
   if (!input) return null;
   // normaliza: maiúsculas, remove espaços e hífens
@@ -743,6 +829,10 @@ function parseStickerId(input) {
     }
     if (num < 1 || num > SPECIALS_COUNT) return { error: `Especiais vão de ${SPECIALS_PREFIX} ${HAS_FWC_ZERO ? '00' : '1'} a ${SPECIALS_PREFIX} ${SPECIALS_COUNT}` };
     return { id: `${SPECIALS_PREFIX}-${num}`, prefix, num, type: 'special', display: `${SPECIALS_PREFIX} ${num}` };
+  }
+  if (prefix === COCACOLA_PREFIX) {
+    if (num < 1 || num > COCACOLA_COUNT) return { error: `Coca-Cola vai de ${COCACOLA_PREFIX} 1 a ${COCACOLA_PREFIX} ${COCACOLA_COUNT}` };
+    return { id: `${COCACOLA_PREFIX}-${num}`, prefix, num, type: 'cocacola', display: `${COCACOLA_PREFIX}${num}` };
   }
   const team = TEAMS.find(t => t.code === prefix);
   if (!team) return { error: `Time "${prefix}" não encontrado` };
@@ -816,7 +906,11 @@ $('#bbDismiss').addEventListener('click', () => {
 // ========================================================================
 function renderHeader() {
   const total = totalStickers();
-  const have = owned.size;
+  // 'owned' inclui Coca-Cola; filtramos para o progresso oficial
+  let have = 0;
+  for (const id of owned) {
+    if (!id.startsWith(`${COCACOLA_PREFIX}-`)) have++;
+  }
   const miss = total - have;
   const pct = (have / total) * 100;
   $('#haveCount').textContent = have;
@@ -831,8 +925,18 @@ function renderHeader() {
 // ========================================================================
 const searchInput = $('#searchInput');
 const searchResult = $('#searchResult');
+const searchClear = $('#searchClear');
 
-searchInput.addEventListener('input', renderSearchResult);
+searchInput.addEventListener('input', () => {
+  searchClear.classList.toggle('show', !!searchInput.value);
+  renderSearchResult();
+});
+searchClear.addEventListener('click', () => {
+  searchInput.value = '';
+  searchClear.classList.remove('show');
+  renderSearchResult();
+  searchInput.focus();
+});
 
 function renderSearchResult() {
   const val = searchInput.value.trim();
@@ -870,6 +974,8 @@ function renderSearchResult() {
   const has = owned.has(parsed.id);
   const subtitle = parsed.type === 'special'
     ? '★ Cromo especial'
+    : parsed.type === 'cocacola'
+    ? '🥤 Coca-Cola (extra)'
     : `${parsed.team.flag} ${parsed.team.name}`;
   searchResult.innerHTML = `
     <div class="sr-row">
@@ -912,16 +1018,44 @@ searchResult.addEventListener('click', (e) => {
 // ========================================================================
 function renderTeams() {
   const grid = $('#teamsGrid');
-  // ordena: completos no fim? não — alfabético por nome, é mais útil
+  const countEl = $('#teamsCount');
+  const toggle = $('#showCompleteToggle');
+  toggle.checked = !!meta.showComplete;
+
+  // alfabético por nome
   const sorted = [...TEAMS].sort((a,b) => a.name.localeCompare(b.name, 'pt-BR'));
-  grid.innerHTML = sorted.map(t => {
+  const completedCount = sorted.filter(t => teamProgress(t.code) === STICKERS_PER_TEAM).length;
+  const visible = meta.showComplete
+    ? sorted
+    : sorted.filter(t => teamProgress(t.code) !== STICKERS_PER_TEAM);
+
+  // contagem informativa
+  if (completedCount === 0) {
+    countEl.textContent = `${sorted.length} times`;
+  } else if (meta.showComplete) {
+    countEl.textContent = `${sorted.length} times · ${completedCount} completos`;
+  } else {
+    countEl.textContent = `${visible.length} pendentes · ${completedCount} completos ocultos`;
+  }
+
+  if (visible.length === 0) {
+    grid.innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:40px 20px; color:var(--ink-soft);">
+        <div style="font-size:32px; margin-bottom:8px;">🏆</div>
+        <div style="font-weight:700; margin-bottom:4px;">Todos os times completos!</div>
+        <div style="font-size:13px;">Marque "Mostrar completos" pra revisitá-los.</div>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = visible.map(t => {
     const prog = teamProgress(t.code);
     const pct = (prog / STICKERS_PER_TEAM) * 100;
     const complete = prog === STICKERS_PER_TEAM;
     return `
       <button class="team-card ${complete ? 'complete' : ''}" data-code="${t.code}">
         <div class="tc-flag">${t.flag}</div>
-        <div class="tc-code mono">${t.code}</div>
+        <div class="tc-code mono">${t.code} · ${t.grupo}</div>
         <div class="tc-name">${t.name}</div>
         <div class="tc-prog mono">${prog}/${STICKERS_PER_TEAM}${complete ? ' ✓' : ''}</div>
         <div class="tc-bar"><div class="tc-bar-fill" style="width:${pct}%"></div></div>
@@ -931,6 +1065,14 @@ function renderTeams() {
     b.addEventListener('click', () => openTeam(b.dataset.code));
   });
 }
+
+// listener do toggle (registrado uma vez)
+document.addEventListener('DOMContentLoaded', () => {});
+$('#showCompleteToggle').addEventListener('change', (e) => {
+  meta.showComplete = e.target.checked;
+  saveMeta();
+  renderTeams();
+});
 
 function openTeam(code) {
   currentTeam = TEAMS.find(t => t.code === code);
@@ -945,7 +1087,7 @@ function renderTeamDetail() {
   if (!currentTeam) return;
   const prog = teamProgress(currentTeam.code);
   $('#tdName').innerHTML = `${currentTeam.flag} ${currentTeam.name}`;
-  $('#tdMeta').textContent = `${currentTeam.code} · ${prog}/${STICKERS_PER_TEAM} · ${currentTeam.confederacao}`;
+  $('#tdMeta').textContent = `${currentTeam.code} · Grupo ${currentTeam.grupo} · ${currentTeam.confederacao} · ${prog}/${STICKERS_PER_TEAM}`;
 
   const grid = $('#stickersGrid');
   let html = '';
@@ -1013,12 +1155,39 @@ function renderSpecials() {
   });
 }
 
+function renderCocacola() {
+  const prog = cocacolaProgress();
+  $('#cocacolaMeta').textContent = `${prog}/${COCACOLA_COUNT} · não conta nas 980 oficiais`;
+  const grid = $('#cocacolaGrid');
+  let html = '';
+  for (let i = 1; i <= COCACOLA_COUNT; i++) {
+    const id = `${COCACOLA_PREFIX}-${i}`;
+    const has = owned.has(id);
+    html += `
+      <button class="sticker ${has ? 'have' : ''}" data-id="${id}">
+        <div class="s-num">${String(i).padStart(2, '0')}</div>
+        <div class="s-pref">${COCACOLA_PREFIX}</div>
+      </button>`;
+  }
+  grid.innerHTML = html;
+  grid.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.id;
+      if (owned.has(id)) owned.delete(id);
+      else owned.add(id);
+      save(); recordChange(); renderCocacola();
+      // não chama renderHeader porque CC não soma no total oficial
+    });
+  });
+}
+
 // ========================================================================
 // CONFIG
 // ========================================================================
 function renderSummary() {
   const total = totalStickers();
-  const have = owned.size;
+  let have = 0;
+  for (const id of owned) { if (!id.startsWith(`${COCACOLA_PREFIX}-`)) have++; }
   const completedTeams = TEAMS.filter(t => teamProgress(t.code) === STICKERS_PER_TEAM).length;
   const specProg = specialsProgress();
 
@@ -1039,6 +1208,7 @@ function renderSummary() {
     <div><span>Faltam</span><b>${total - have}</b></div>
     <div><span>Times completos</span><b>${completedTeams}/${TEAMS.length}</b></div>
     <div><span>Especiais</span><b>${specProg}/${specialsTotal()}</b></div>
+    <div><span>Coca-Cola (extra)</span><b>${cocacolaProgress()}/${COCACOLA_COUNT}</b></div>
     <div><span>Último backup</span><b>${backupInfo}</b></div>
   `;
 }
@@ -1103,7 +1273,11 @@ function switchTab(name) {
   $$('.view').forEach(v => v.classList.remove('active'));
   if (name === 'buscar') $('#view-buscar').classList.add('active');
   if (name === 'times') { $('#view-times').classList.add('active'); renderTeams(); }
-  if (name === 'especiais') { $('#view-especiais').classList.add('active'); renderSpecials(); }
+  if (name === 'especiais') {
+    $('#view-especiais').classList.add('active');
+    renderSpecials();
+    renderCocacola();
+  }
   if (name === 'config') { $('#view-config').classList.add('active'); renderSummary(); }
 }
 $$('nav.tabs button').forEach(b => {
@@ -1117,6 +1291,7 @@ load();
 renderHeader();
 renderTeams();
 renderSpecials();
+renderCocacola();
 checkBackupReminder();
 
 // foco automático no input ao abrir
