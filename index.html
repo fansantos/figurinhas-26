@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Figurinhas 26">
+<meta name="theme-color" content="#0a3d2e">
+<title>Álbum Copa 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #f4f1e8;
+    --bg-card: #ffffff;
+    --ink: #0a3d2e;
+    --ink-soft: #4a5d54;
+    --ink-mute: #8a9590;
+    --line: #d9d4c3;
+    --accent: #ffcf3c;
+    --accent-deep: #e8a900;
+    --have: #0a3d2e;
+    --miss: #f4f1e8;
+    --danger: #c4452f;
+    --shadow: 0 1px 0 rgba(10,61,46,.06), 0 8px 24px -12px rgba(10,61,46,.18);
+    --radius: 10px;
+  }
+  html, body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Bricolage Grotesque', -apple-system, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.45;
+    overscroll-behavior-y: contain;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* HEADER */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--ink);
+    color: var(--bg);
+    padding: max(env(safe-area-inset-top), 14px) 18px 14px;
+    box-shadow: 0 1px 0 rgba(0,0,0,.1);
+  }
+  .h-title {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px;
+  }
+  .h-title h1 {
+    font-size: 18px; font-weight: 800; letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+  .h-title h1 span { color: var(--accent); }
+  .h-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: var(--accent); font-weight: 500;
+  }
+  .h-bar {
+    margin-top: 10px;
+    height: 4px; background: rgba(255,255,255,.12); border-radius: 2px; overflow: hidden;
+  }
+  .h-bar-fill {
+    height: 100%; background: var(--accent);
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+  }
+  .h-stats {
+    margin-top: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,.55);
+    display: flex; gap: 14px;
+  }
+  .h-stats b { color: var(--bg); font-weight: 500; }
+
+  /* TABS */
+  nav.tabs {
+    display: flex; gap: 4px;
+    background: var(--ink);
+    padding: 0 14px 10px;
+    position: sticky; top: 0; z-index: 49;
+  }
+  nav.tabs button {
+    flex: 1;
+    background: transparent;
+    color: rgba(255,255,255,.55);
+    border: none;
+    padding: 9px 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all .15s;
+  }
+  nav.tabs button.active {
+    background: var(--bg);
+    color: var(--ink);
+  }
+
+  /* CONTAINER */
+  main { padding: 18px 16px 100px; max-width: 720px; margin: 0 auto; }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn .2s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* SEARCH VIEW */
+  .search-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    padding: 20px;
+    box-shadow: var(--shadow);
+  }
+  .search-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-mute);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .search-input-wrap {
+    display: flex; gap: 8px;
+  }
+  .search-input {
+    flex: 1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    padding: 14px 16px;
+    border: 2px solid var(--ink);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--ink);
+    text-transform: uppercase;
+    width: 100%;
+    -webkit-appearance: none;
+  }
+  .search-input:focus {
+    outline: none;
+    background: var(--bg-card);
+    border-color: var(--accent-deep);
+  }
+  .search-input::placeholder { color: var(--ink-mute); font-weight: 400; }
+  .search-hint {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--ink-mute);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .search-result {
+    margin-top: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 20px;
+    box-shadow: var(--shadow);
+    display: none;
+  }
+  .search-result.show { display: block; animation: fadeIn .2s ease-out; }
+  .search-result.invalid { border-color: var(--danger); }
+  .search-result.invalid .sr-status { color: var(--danger); }
+
+  .sr-row {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+  }
+  .sr-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .sr-team-name {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+    font-weight: 500;
+  }
+  .sr-status {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+  .sr-status.have { background: var(--ink); color: var(--accent); }
+  .sr-status.miss { background: var(--accent); color: var(--ink); }
+  .sr-status.invalid { background: transparent; padding: 0; }
+
+  .sr-actions { margin-top: 16px; display: flex; gap: 8px; }
+  .btn {
+    flex: 1;
+    padding: 13px 16px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: transform .08s, background .15s;
+    text-transform: uppercase;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--ink); color: var(--accent); }
+  .btn-secondary { background: var(--accent); color: var(--ink); }
+  .btn-ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+  .btn-danger { background: var(--danger); color: white; }
+
+  /* TEAMS VIEW */
+  .teams-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  .team-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 14px 12px;
+    cursor: pointer;
+    transition: transform .08s, border-color .15s;
+    text-align: left;
+    font-family: inherit;
+    color: var(--ink);
+  }
+  .team-card:active { transform: scale(0.98); }
+  .team-card.complete { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .team-card.complete .tc-name { color: var(--bg); }
+  .team-card.complete .tc-prog { color: var(--accent); }
+  .tc-flag { font-size: 26px; line-height: 1; margin-bottom: 6px; }
+  .tc-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-mute);
+    letter-spacing: 0.04em;
+  }
+  .team-card.complete .tc-code { color: var(--accent); }
+  .tc-name {
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 2px;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+  .tc-prog {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .tc-bar {
+    margin-top: 6px;
+    height: 3px;
+    background: rgba(10,61,46,.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .team-card.complete .tc-bar { background: rgba(255,255,255,.15); }
+  .tc-bar-fill { height: 100%; background: var(--accent-deep); transition: width .3s; }
+  .team-card.complete .tc-bar-fill { background: var(--accent); }
+
+  /* TEAM DETAIL */
+  .td-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 18px;
+  }
+  .td-back {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .td-info { flex: 1; min-width: 0; }
+  .td-name {
+    font-size: 20px; font-weight: 800; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .td-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--ink-soft);
+    margin-top: 2px;
+  }
+  .stickers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 6px;
+  }
+  .sticker {
+    aspect-ratio: 3/4;
+    background: var(--miss);
+    border: 1.5px solid var(--line);
+    border-radius: 7px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .12s;
+    padding: 6px;
+    color: var(--ink);
+  }
+  .sticker:active { transform: scale(0.95); }
+  .sticker.have {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--accent);
+  }
+  .sticker .s-num { font-size: 18px; line-height: 1; }
+  .sticker .s-pref { font-size: 9px; opacity: .55; margin-top: 4px; letter-spacing: 0.05em; }
+  .sticker.have .s-pref { opacity: .7; }
+
+  /* SPECIAIS */
+  .specials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 6px;
+  }
+
+  /* SETTINGS */
+  .settings-card {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 14px;
+  }
+  .settings-title {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink-mute); font-weight: 600; margin-bottom: 12px;
+  }
+  .settings-row { display: flex; gap: 8px; }
+  .settings-desc {
+    font-size: 13px; color: var(--ink-soft); margin-top: 10px; line-height: 1.5;
+  }
+  .settings-stats {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    display: grid; gap: 6px;
+  }
+  .settings-stats div {
+    display: flex; justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--line);
+  }
+  .settings-stats div:last-child { border: none; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    left: 50%; transform: translateX(-50%) translateY(120%);
+    background: var(--ink);
+    color: var(--accent);
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(10,61,46,.3);
+    z-index: 100;
+    transition: transform .25s cubic-bezier(.4,0,.2,1);
+    pointer-events: none;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(10,61,46,.5);
+    display: none; align-items: center; justify-content: center; z-index: 200;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 400px;
+    width: 100%;
+  }
+  .modal h3 { font-size: 18px; margin-bottom: 8px; }
+  .modal p { font-size: 14px; color: var(--ink-soft); margin-bottom: 16px; }
+  .modal textarea {
+    width: 100%;
+    height: 120px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--ink);
+    resize: none;
+    margin-bottom: 12px;
+  }
+
+  /* BANNER DE LEMBRETE */
+  .backup-banner {
+    background: var(--accent);
+    color: var(--ink);
+    padding: 12px 16px;
+    margin: 0 0 14px;
+    border-radius: var(--radius);
+    display: none;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow);
+    animation: slideIn .25s ease-out;
+  }
+  .backup-banner.show { display: flex; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  .bb-icon { font-size: 22px; line-height: 1; }
+  .bb-text { flex: 1; font-size: 13px; font-weight: 500; line-height: 1.35; }
+  .bb-text b { display: block; font-size: 14px; font-weight: 800; margin-bottom: 2px; }
+  .bb-actions { display: flex; flex-direction: column; gap: 4px; }
+  .bb-btn {
+    background: var(--ink);
+    color: var(--accent);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .bb-btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    font-size: 11px;
+    text-decoration: underline;
+    padding: 2px 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="h-title">
+    <h1>Álbum Copa 2026 <span>·</span></h1>
+    <div class="h-pct mono" id="overallPct">0,0%</div>
+  </div>
+  <div class="h-bar"><div class="h-bar-fill" id="overallBar" style="width:0%"></div></div>
+  <div class="h-stats">
+    <span><b id="haveCount">0</b> obtidas</span>
+    <span><b id="missCount">980</b> faltam</span>
+    <span><b id="totalCount">980</b> total</span>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="active" data-tab="buscar">Buscar</button>
+  <button data-tab="times">Times</button>
+  <button data-tab="especiais">Especiais</button>
+  <button data-tab="config">Mais</button>
+</nav>
+
+<main>
+
+  <div class="backup-banner" id="backupBanner">
+    <div class="bb-icon">⚠️</div>
+    <div class="bb-text">
+      <b>Hora de fazer backup</b>
+      <span id="backupBannerMsg"></span>
+    </div>
+    <div class="bb-actions">
+      <button class="bb-btn" id="bbExport">Exportar</button>
+      <button class="bb-btn bb-btn-ghost" id="bbDismiss">Depois</button>
+    </div>
+  </div>
+
+  <!-- BUSCAR -->
+  <section class="view active" id="view-buscar">
+    <div class="search-card">
+      <div class="search-label">Digite o ID da figurinha</div>
+      <div class="search-input-wrap">
+        <input type="text" class="search-input mono" id="searchInput"
+               placeholder="BRA 7" autocomplete="off" autocapitalize="characters" inputmode="text">
+      </div>
+      <div class="search-hint">Ex: BRA 7, ARG 12, FWC 00, FWC 19</div>
+    </div>
+    <div class="search-result" id="searchResult"></div>
+  </section>
+
+  <!-- TIMES -->
+  <section class="view" id="view-times">
+    <div class="teams-grid" id="teamsGrid"></div>
+  </section>
+
+  <!-- TIME DETAIL -->
+  <section class="view" id="view-team-detail">
+    <div class="td-header">
+      <button class="td-back" id="backToTeams">←</button>
+      <div class="td-info">
+        <div class="td-name" id="tdName"></div>
+        <div class="td-meta" id="tdMeta"></div>
+      </div>
+    </div>
+    <div class="stickers-grid" id="stickersGrid"></div>
+  </section>
+
+  <!-- ESPECIAIS -->
+  <section class="view" id="view-especiais">
+    <div class="td-header">
+      <div class="td-info">
+        <div class="td-name">★ Especiais</div>
+        <div class="td-meta mono" id="specialsMeta">0/20</div>
+      </div>
+    </div>
+    <div class="specials-grid" id="specialsGrid"></div>
+  </section>
+
+  <!-- CONFIG -->
+  <section class="view" id="view-config">
+    <div class="settings-card">
+      <div class="settings-title">Resumo</div>
+      <div class="settings-stats" id="summaryStats"></div>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-title">Backup</div>
+      <div class="settings-desc">
+        Salve um backup periodicamente. Os dados são armazenados localmente no Safari
+        deste dispositivo — limpar dados do navegador apaga tudo.
+      </div>
+      <div class="settings-row" style="margin-top:14px">
+        <button class="btn btn-secondary" id="exportBtn">Exportar</button>
+        <button class="btn btn-ghost" id="importBtn">Importar</button>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-title">Atalho no iPhone</div>
+      <div class="settings-desc">
+        No Safari: toque em <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b>.
+        O app abre em tela cheia e funciona offline.
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-title">Zona perigosa</div>
+      <div class="settings-row" style="margin-top:0">
+        <button class="btn btn-danger" id="resetBtn">Resetar tudo</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modalTitle"></h3>
+    <p id="modalDesc"></p>
+    <textarea id="modalText" class="mono"></textarea>
+    <div class="settings-row">
+      <button class="btn btn-ghost" id="modalCancel">Cancelar</button>
+      <button class="btn btn-primary" id="modalConfirm">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========================================================================
+// DADOS — 48 SELEÇÕES (16 confirmadas + 32 placeholders para classificadas)
+// Cada time: 19 cromos. Especiais: 68. Total: 48*19 + 68 = 980 ✓
+// ========================================================================
+const TEAMS = [
+  // Anfitriões
+  { code: 'CAN', name: 'Canadá', flag: '🇨🇦', confederacao: 'Concacaf' },
+  { code: 'MEX', name: 'México', flag: '🇲🇽', confederacao: 'Concacaf' },
+  { code: 'USA', name: 'Estados Unidos', flag: '🇺🇸', confederacao: 'Concacaf' },
+  // Conmebol
+  { code: 'ARG', name: 'Argentina', flag: '🇦🇷', confederacao: 'Conmebol' },
+  { code: 'BRA', name: 'Brasil', flag: '🇧🇷', confederacao: 'Conmebol' },
+  { code: 'COL', name: 'Colômbia', flag: '🇨🇴', confederacao: 'Conmebol' },
+  { code: 'ECU', name: 'Equador', flag: '🇪🇨', confederacao: 'Conmebol' },
+  { code: 'PAR', name: 'Paraguai', flag: '🇵🇾', confederacao: 'Conmebol' },
+  { code: 'URU', name: 'Uruguai', flag: '🇺🇾', confederacao: 'Conmebol' },
+  // Concacaf (além dos anfitriões)
+  { code: 'CRC', name: 'Costa Rica', flag: '🇨🇷', confederacao: 'Concacaf' },
+  { code: 'PAN', name: 'Panamá', flag: '🇵🇦', confederacao: 'Concacaf' },
+  // UEFA
+  { code: 'ENG', name: 'Inglaterra', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', confederacao: 'UEFA' },
+  { code: 'FRA', name: 'França', flag: '🇫🇷', confederacao: 'UEFA' },
+  { code: 'GER', name: 'Alemanha', flag: '🇩🇪', confederacao: 'UEFA' },
+  { code: 'ESP', name: 'Espanha', flag: '🇪🇸', confederacao: 'UEFA' },
+  { code: 'POR', name: 'Portugal', flag: '🇵🇹', confederacao: 'UEFA' },
+  { code: 'NED', name: 'Holanda', flag: '🇳🇱', confederacao: 'UEFA' },
+  { code: 'ITA', name: 'Itália', flag: '🇮🇹', confederacao: 'UEFA' },
+  { code: 'BEL', name: 'Bélgica', flag: '🇧🇪', confederacao: 'UEFA' },
+  { code: 'CRO', name: 'Croácia', flag: '🇭🇷', confederacao: 'UEFA' },
+  { code: 'POL', name: 'Polônia', flag: '🇵🇱', confederacao: 'UEFA' },
+  { code: 'SUI', name: 'Suíça', flag: '🇨🇭', confederacao: 'UEFA' },
+  { code: 'AUT', name: 'Áustria', flag: '🇦🇹', confederacao: 'UEFA' },
+  { code: 'DEN', name: 'Dinamarca', flag: '🇩🇰', confederacao: 'UEFA' },
+  { code: 'SRB', name: 'Sérvia', flag: '🇷🇸', confederacao: 'UEFA' },
+  { code: 'TUR', name: 'Turquia', flag: '🇹🇷', confederacao: 'UEFA' },
+  { code: 'NOR', name: 'Noruega', flag: '🇳🇴', confederacao: 'UEFA' },
+  { code: 'BIH', name: 'Bósnia', flag: '🇧🇦', confederacao: 'UEFA' },
+  { code: 'WAL', name: 'País de Gales', flag: '🏴󠁧󠁢󠁷󠁬󠁳󠁿', confederacao: 'UEFA' },
+  { code: 'SCO', name: 'Escócia', flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿', confederacao: 'UEFA' },
+  // CAF
+  { code: 'MAR', name: 'Marrocos', flag: '🇲🇦', confederacao: 'CAF' },
+  { code: 'SEN', name: 'Senegal', flag: '🇸🇳', confederacao: 'CAF' },
+  { code: 'TUN', name: 'Tunísia', flag: '🇹🇳', confederacao: 'CAF' },
+  { code: 'EGY', name: 'Egito', flag: '🇪🇬', confederacao: 'CAF' },
+  { code: 'NGA', name: 'Nigéria', flag: '🇳🇬', confederacao: 'CAF' },
+  { code: 'GHA', name: 'Gana', flag: '🇬🇭', confederacao: 'CAF' },
+  { code: 'CIV', name: 'Costa do Marfim', flag: '🇨🇮', confederacao: 'CAF' },
+  { code: 'CMR', name: 'Camarões', flag: '🇨🇲', confederacao: 'CAF' },
+  { code: 'ALG', name: 'Argélia', flag: '🇩🇿', confederacao: 'CAF' },
+  // AFC
+  { code: 'JPN', name: 'Japão', flag: '🇯🇵', confederacao: 'AFC' },
+  { code: 'KOR', name: 'Coreia do Sul', flag: '🇰🇷', confederacao: 'AFC' },
+  { code: 'IRN', name: 'Irã', flag: '🇮🇷', confederacao: 'AFC' },
+  { code: 'AUS', name: 'Austrália', flag: '🇦🇺', confederacao: 'AFC' },
+  { code: 'KSA', name: 'Arábia Saudita', flag: '🇸🇦', confederacao: 'AFC' },
+  { code: 'QAT', name: 'Catar', flag: '🇶🇦', confederacao: 'AFC' },
+  { code: 'UZB', name: 'Uzbequistão', flag: '🇺🇿', confederacao: 'AFC' },
+  { code: 'JOR', name: 'Jordânia', flag: '🇯🇴', confederacao: 'AFC' },
+  // OFC
+  { code: 'NZL', name: 'Nova Zelândia', flag: '🇳🇿', confederacao: 'OFC' },
+];
+
+const STICKERS_PER_TEAM = 20;
+const SPECIALS_COUNT = 19;
+const SPECIALS_PREFIX = 'FWC';
+// Cromo extra: FWC 00 (capa do álbum / cromo institucional especial)
+const HAS_FWC_ZERO = true;
+
+// ========================================================================
+// ESTADO
+// ========================================================================
+const STORAGE_KEY = 'figurinhasCopa2026.v1';
+const META_KEY = 'figurinhasCopa2026.meta.v1';
+let owned = new Set();
+let currentTeam = null;
+let meta = { lastExportAt: null, changesSinceExport: 0, dismissedAt: null };
+
+// Regras do lembrete
+const REMINDER_DAYS = 7;        // aparece após N dias sem export...
+const REMINDER_MIN_CHANGES = 5; // ...se houve pelo menos N mudanças
+const REMINDER_HARD_LIMIT = 20; // ou imediatamente após N mudanças
+const DISMISS_HOURS = 24;       // "Depois" silencia por N horas
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) owned = new Set(JSON.parse(raw));
+    const rawMeta = localStorage.getItem(META_KEY);
+    if (rawMeta) meta = { ...meta, ...JSON.parse(rawMeta) };
+  } catch(e) { console.warn('load fail', e); }
+}
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...owned]));
+  } catch(e) { toast('Erro ao salvar'); }
+}
+function saveMeta() {
+  try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch(e) {}
+}
+
+// chamada toda vez que a coleção muda
+function recordChange() {
+  meta.changesSinceExport = (meta.changesSinceExport || 0) + 1;
+  saveMeta();
+  checkBackupReminder();
+}
+
+function markExported() {
+  meta.lastExportAt = Date.now();
+  meta.changesSinceExport = 0;
+  meta.dismissedAt = null;
+  saveMeta();
+  checkBackupReminder();
+}
+
+// ========================================================================
+// UTIL
+// ========================================================================
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+
+function totalStickers() { return TEAMS.length * STICKERS_PER_TEAM + SPECIALS_COUNT + (HAS_FWC_ZERO ? 1 : 0); }
+
+function teamProgress(code) {
+  let count = 0;
+  for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
+    if (owned.has(`${code}-${i}`)) count++;
+  }
+  return count;
+}
+function specialsProgress() {
+  let count = 0;
+  if (HAS_FWC_ZERO && owned.has(`${SPECIALS_PREFIX}-0`)) count++;
+  for (let i = 1; i <= SPECIALS_COUNT; i++) {
+    if (owned.has(`${SPECIALS_PREFIX}-${i}`)) count++;
+  }
+  return count;
+}
+function specialsTotal() { return SPECIALS_COUNT + (HAS_FWC_ZERO ? 1 : 0); }
+
+function parseStickerId(input) {
+  if (!input) return null;
+  // normaliza: maiúsculas, remove espaços e hífens
+  const s = input.toUpperCase().replace(/[\s\-]+/g, '');
+  // captura: letras + número  (ex: BRA7, FWC12)
+  const m = s.match(/^([A-Z]{2,4})(\d{1,3})$/);
+  if (!m) return null;
+  const prefix = m[1];
+  const num = parseInt(m[2], 10);
+
+  if (prefix === SPECIALS_PREFIX) {
+    // FWC 00 é cromo institucional especial (capa)
+    if (num === 0) {
+      if (!HAS_FWC_ZERO) return { error: `Especiais começam em ${SPECIALS_PREFIX} 1` };
+      return { id: `${SPECIALS_PREFIX}-0`, prefix, num: 0, type: 'special', display: `${SPECIALS_PREFIX} 00` };
+    }
+    if (num < 1 || num > SPECIALS_COUNT) return { error: `Especiais vão de ${SPECIALS_PREFIX} ${HAS_FWC_ZERO ? '00' : '1'} a ${SPECIALS_PREFIX} ${SPECIALS_COUNT}` };
+    return { id: `${SPECIALS_PREFIX}-${num}`, prefix, num, type: 'special', display: `${SPECIALS_PREFIX} ${num}` };
+  }
+  const team = TEAMS.find(t => t.code === prefix);
+  if (!team) return { error: `Time "${prefix}" não encontrado` };
+  if (num < 1 || num > STICKERS_PER_TEAM) return { error: `${team.name} vai de ${prefix} 1 a ${prefix} ${STICKERS_PER_TEAM}` };
+  return { id: `${prefix}-${num}`, prefix, num, type: 'team', team, display: `${prefix} ${num}` };
+}
+
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ========================================================================
+// BANNER DE LEMBRETE DE BACKUP
+// ========================================================================
+function checkBackupReminder() {
+  const banner = $('#backupBanner');
+  if (!banner) return;
+  const msg = $('#backupBannerMsg');
+
+  // se nunca exportou e não tem mudanças, não incomoda
+  if (!meta.lastExportAt && meta.changesSinceExport === 0) {
+    banner.classList.remove('show');
+    return;
+  }
+
+  // se foi dispensado recentemente, respeita o silêncio
+  if (meta.dismissedAt) {
+    const hoursSinceDismiss = (Date.now() - meta.dismissedAt) / (1000 * 60 * 60);
+    if (hoursSinceDismiss < DISMISS_HOURS) {
+      banner.classList.remove('show');
+      return;
+    }
+  }
+
+  const changes = meta.changesSinceExport || 0;
+  const daysSinceExport = meta.lastExportAt
+    ? (Date.now() - meta.lastExportAt) / (1000 * 60 * 60 * 24)
+    : Infinity;
+
+  let trigger = null;
+  if (changes >= REMINDER_HARD_LIMIT) {
+    trigger = `${changes} alterações desde o último backup`;
+  } else if (changes >= REMINDER_MIN_CHANGES && daysSinceExport >= REMINDER_DAYS) {
+    const days = Math.floor(daysSinceExport);
+    trigger = `${days} dias sem backup · ${changes} alterações novas`;
+  } else if (!meta.lastExportAt && changes >= REMINDER_HARD_LIMIT) {
+    trigger = `${changes} figurinhas registradas, nenhum backup feito`;
+  }
+
+  if (trigger) {
+    msg.textContent = trigger;
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+$('#bbExport').addEventListener('click', () => $('#exportBtn').click());
+$('#bbDismiss').addEventListener('click', () => {
+  meta.dismissedAt = Date.now();
+  saveMeta();
+  checkBackupReminder();
+});
+
+// ========================================================================
+// RENDER — TOPO
+// ========================================================================
+function renderHeader() {
+  const total = totalStickers();
+  const have = owned.size;
+  const miss = total - have;
+  const pct = (have / total) * 100;
+  $('#haveCount').textContent = have;
+  $('#missCount').textContent = miss;
+  $('#totalCount').textContent = total;
+  $('#overallPct').textContent = pct.toFixed(1).replace('.', ',') + '%';
+  $('#overallBar').style.width = pct + '%';
+}
+
+// ========================================================================
+// RENDER — BUSCA
+// ========================================================================
+const searchInput = $('#searchInput');
+const searchResult = $('#searchResult');
+
+searchInput.addEventListener('input', renderSearchResult);
+
+function renderSearchResult() {
+  const val = searchInput.value.trim();
+  if (!val) {
+    searchResult.classList.remove('show');
+    return;
+  }
+  const parsed = parseStickerId(val);
+  if (!parsed) {
+    searchResult.classList.add('show', 'invalid');
+    searchResult.innerHTML = `
+      <div class="sr-row">
+        <div>
+          <div class="sr-id mono">—</div>
+          <div class="sr-team-name">Formato inválido</div>
+        </div>
+        <div class="sr-status invalid">Use formato tipo BRA 7</div>
+      </div>`;
+    return;
+  }
+  if (parsed.error) {
+    searchResult.classList.add('show', 'invalid');
+    searchResult.innerHTML = `
+      <div class="sr-row">
+        <div>
+          <div class="sr-id mono">${val.toUpperCase()}</div>
+          <div class="sr-team-name">${parsed.error}</div>
+        </div>
+        <div class="sr-status invalid"></div>
+      </div>`;
+    return;
+  }
+  searchResult.classList.remove('invalid');
+  searchResult.classList.add('show');
+  const has = owned.has(parsed.id);
+  const subtitle = parsed.type === 'special'
+    ? '★ Cromo especial'
+    : `${parsed.team.flag} ${parsed.team.name}`;
+  searchResult.innerHTML = `
+    <div class="sr-row">
+      <div>
+        <div class="sr-id mono">${parsed.display}</div>
+        <div class="sr-team-name">${subtitle}</div>
+      </div>
+      <div class="sr-status ${has ? 'have' : 'miss'}">${has ? '✓ Tenho' : 'Falta'}</div>
+    </div>
+    <div class="sr-actions">
+      ${has
+        ? `<button class="btn btn-ghost" data-action="remove" data-id="${parsed.id}">Remover</button>`
+        : `<button class="btn btn-primary" data-action="add" data-id="${parsed.id}">+ Adicionar à coleção</button>`}
+      ${parsed.type === 'team'
+        ? `<button class="btn btn-secondary" data-action="go-team" data-code="${parsed.team.code}">Ver time</button>`
+        : ''}
+    </div>`;
+}
+
+searchResult.addEventListener('click', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  const action = btn.dataset.action;
+  if (action === 'add') {
+    owned.add(btn.dataset.id);
+    save(); recordChange(); renderHeader(); renderSearchResult();
+    toast('✓ Adicionada');
+  } else if (action === 'remove') {
+    owned.delete(btn.dataset.id);
+    save(); recordChange(); renderHeader(); renderSearchResult();
+    toast('Removida');
+  } else if (action === 'go-team') {
+    switchTab('times');
+    openTeam(btn.dataset.code);
+  }
+});
+
+// ========================================================================
+// RENDER — TIMES
+// ========================================================================
+function renderTeams() {
+  const grid = $('#teamsGrid');
+  // ordena: completos no fim? não — alfabético por nome, é mais útil
+  const sorted = [...TEAMS].sort((a,b) => a.name.localeCompare(b.name, 'pt-BR'));
+  grid.innerHTML = sorted.map(t => {
+    const prog = teamProgress(t.code);
+    const pct = (prog / STICKERS_PER_TEAM) * 100;
+    const complete = prog === STICKERS_PER_TEAM;
+    return `
+      <button class="team-card ${complete ? 'complete' : ''}" data-code="${t.code}">
+        <div class="tc-flag">${t.flag}</div>
+        <div class="tc-code mono">${t.code}</div>
+        <div class="tc-name">${t.name}</div>
+        <div class="tc-prog mono">${prog}/${STICKERS_PER_TEAM}${complete ? ' ✓' : ''}</div>
+        <div class="tc-bar"><div class="tc-bar-fill" style="width:${pct}%"></div></div>
+      </button>`;
+  }).join('');
+  grid.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => openTeam(b.dataset.code));
+  });
+}
+
+function openTeam(code) {
+  currentTeam = TEAMS.find(t => t.code === code);
+  if (!currentTeam) return;
+  // muda view
+  $$('.view').forEach(v => v.classList.remove('active'));
+  $('#view-team-detail').classList.add('active');
+  renderTeamDetail();
+}
+
+function renderTeamDetail() {
+  if (!currentTeam) return;
+  const prog = teamProgress(currentTeam.code);
+  $('#tdName').innerHTML = `${currentTeam.flag} ${currentTeam.name}`;
+  $('#tdMeta').textContent = `${currentTeam.code} · ${prog}/${STICKERS_PER_TEAM} · ${currentTeam.confederacao}`;
+
+  const grid = $('#stickersGrid');
+  let html = '';
+  for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
+    const id = `${currentTeam.code}-${i}`;
+    const has = owned.has(id);
+    html += `
+      <button class="sticker ${has ? 'have' : ''}" data-id="${id}">
+        <div class="s-num">${i}</div>
+        <div class="s-pref">${currentTeam.code}</div>
+      </button>`;
+  }
+  grid.innerHTML = html;
+  grid.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.id;
+      if (owned.has(id)) owned.delete(id);
+      else owned.add(id);
+      save(); recordChange(); renderHeader(); renderTeamDetail();
+      // re-renderiza times quando voltar
+    });
+  });
+}
+
+$('#backToTeams').addEventListener('click', () => {
+  renderTeams();
+  switchTab('times');
+});
+
+// ========================================================================
+// ESPECIAIS
+// ========================================================================
+function renderSpecials() {
+  const prog = specialsProgress();
+  const total = specialsTotal();
+  $('#specialsMeta').textContent = `${prog}/${total}`;
+  const grid = $('#specialsGrid');
+  let html = '';
+  if (HAS_FWC_ZERO) {
+    const id = `${SPECIALS_PREFIX}-0`;
+    const has = owned.has(id);
+    html += `
+      <button class="sticker ${has ? 'have' : ''}" data-id="${id}">
+        <div class="s-num">00</div>
+        <div class="s-pref">${SPECIALS_PREFIX}</div>
+      </button>`;
+  }
+  for (let i = 1; i <= SPECIALS_COUNT; i++) {
+    const id = `${SPECIALS_PREFIX}-${i}`;
+    const has = owned.has(id);
+    html += `
+      <button class="sticker ${has ? 'have' : ''}" data-id="${id}">
+        <div class="s-num">${String(i).padStart(2, '0')}</div>
+        <div class="s-pref">${SPECIALS_PREFIX}</div>
+      </button>`;
+  }
+  grid.innerHTML = html;
+  grid.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.id;
+      if (owned.has(id)) owned.delete(id);
+      else owned.add(id);
+      save(); recordChange(); renderHeader(); renderSpecials();
+    });
+  });
+}
+
+// ========================================================================
+// CONFIG
+// ========================================================================
+function renderSummary() {
+  const total = totalStickers();
+  const have = owned.size;
+  const completedTeams = TEAMS.filter(t => teamProgress(t.code) === STICKERS_PER_TEAM).length;
+  const specProg = specialsProgress();
+
+  let backupInfo;
+  if (!meta.lastExportAt) {
+    backupInfo = 'nunca';
+  } else {
+    const days = (Date.now() - meta.lastExportAt) / (1000 * 60 * 60 * 24);
+    if (days < 1) backupInfo = 'hoje';
+    else if (days < 2) backupInfo = 'ontem';
+    else backupInfo = `há ${Math.floor(days)} dias`;
+    if (meta.changesSinceExport > 0) backupInfo += ` · ${meta.changesSinceExport} alterações desde então`;
+  }
+
+  $('#summaryStats').innerHTML = `
+    <div><span>Total no álbum</span><b>${total}</b></div>
+    <div><span>Tenho</span><b>${have}</b></div>
+    <div><span>Faltam</span><b>${total - have}</b></div>
+    <div><span>Times completos</span><b>${completedTeams}/${TEAMS.length}</b></div>
+    <div><span>Especiais</span><b>${specProg}/${specialsTotal()}</b></div>
+    <div><span>Último backup</span><b>${backupInfo}</b></div>
+  `;
+}
+
+// MODAL
+const modal = $('#modal');
+function openModal(title, desc, value, onConfirm, readonly=false) {
+  $('#modalTitle').textContent = title;
+  $('#modalDesc').textContent = desc;
+  $('#modalText').value = value;
+  $('#modalText').readOnly = readonly;
+  modal.classList.add('show');
+  $('#modalConfirm').onclick = () => {
+    onConfirm($('#modalText').value);
+    modal.classList.remove('show');
+  };
+}
+$('#modalCancel').addEventListener('click', () => modal.classList.remove('show'));
+
+$('#exportBtn').addEventListener('click', () => {
+  const data = JSON.stringify({ v: 1, exported: new Date().toISOString(), owned: [...owned] }, null, 2);
+  openModal('Backup', 'Copie o texto abaixo e salve em um lugar seguro (Notas, iCloud, etc.).', data, () => {
+    navigator.clipboard?.writeText(data);
+    markExported();
+    toast('Copiado · backup registrado');
+  }, true);
+});
+
+$('#importBtn').addEventListener('click', () => {
+  openModal('Importar backup', 'Cole o JSON exportado anteriormente. Isso vai SUBSTITUIR sua coleção atual.', '', (text) => {
+    try {
+      const parsed = JSON.parse(text);
+      if (!parsed.owned || !Array.isArray(parsed.owned)) throw new Error('formato');
+      owned = new Set(parsed.owned);
+      save();
+      // estado restaurado = considera como "exportado agora"
+      markExported();
+      renderHeader(); renderTeams(); renderSpecials(); renderSummary();
+      toast('✓ Importado');
+    } catch(e) {
+      toast('JSON inválido');
+    }
+  });
+});
+
+$('#resetBtn').addEventListener('click', () => {
+  if (confirm('Apagar toda a coleção? Isso não pode ser desfeito.')) {
+    owned = new Set();
+    meta = { lastExportAt: null, changesSinceExport: 0, dismissedAt: null };
+    save(); saveMeta();
+    renderHeader(); renderTeams(); renderSpecials(); renderSummary();
+    checkBackupReminder();
+    toast('Resetado');
+  }
+});
+
+// ========================================================================
+// TABS
+// ========================================================================
+function switchTab(name) {
+  $$('nav.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+  $$('.view').forEach(v => v.classList.remove('active'));
+  if (name === 'buscar') $('#view-buscar').classList.add('active');
+  if (name === 'times') { $('#view-times').classList.add('active'); renderTeams(); }
+  if (name === 'especiais') { $('#view-especiais').classList.add('active'); renderSpecials(); }
+  if (name === 'config') { $('#view-config').classList.add('active'); renderSummary(); }
+}
+$$('nav.tabs button').forEach(b => {
+  b.addEventListener('click', () => switchTab(b.dataset.tab));
+});
+
+// ========================================================================
+// INIT
+// ========================================================================
+load();
+renderHeader();
+renderTeams();
+renderSpecials();
+checkBackupReminder();
+
+// foco automático no input ao abrir
+setTimeout(() => searchInput.focus(), 200);
+</script>
+</body>
+</html>
