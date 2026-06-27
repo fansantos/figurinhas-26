@@ -455,7 +455,7 @@
   .modal p { font-size: 14px; color: var(--ink-soft); margin-bottom: 16px; }
   .modal textarea {
     width: 100%;
-    height: 120px;
+    height: 180px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
     padding: 10px;
@@ -465,6 +465,7 @@
     color: var(--ink);
     resize: none;
     margin-bottom: 12px;
+    line-height: 1.5;
   }
 
   /* BANNER DE LEMBRETE */
@@ -608,6 +609,17 @@
     <div class="settings-card">
       <div class="settings-title">Resumo</div>
       <div class="settings-stats" id="summaryStats"></div>
+    </div>
+
+    <div class="settings-card">
+      <div class="settings-title">Trocar com amigos</div>
+      <div class="settings-desc">
+        Gera a lista das figurinhas que ainda faltam, agrupada por time,
+        pronta pra colar no WhatsApp.
+      </div>
+      <div class="settings-row" style="margin-top:14px">
+        <button class="btn btn-primary" id="shareMissingBtn">Compartilhar faltantes</button>
+      </div>
     </div>
 
     <div class="settings-card">
@@ -1215,26 +1227,108 @@ function renderSummary() {
 
 // MODAL
 const modal = $('#modal');
-function openModal(title, desc, value, onConfirm, readonly=false) {
+function openModal(title, desc, value, onConfirm, readonly=false, copyMode=false) {
   $('#modalTitle').textContent = title;
   $('#modalDesc').textContent = desc;
   $('#modalText').value = value;
   $('#modalText').readOnly = readonly;
+
+  const confirmBtn = $('#modalConfirm');
+  const cancelBtn = $('#modalCancel');
+
+  if (copyMode) {
+    confirmBtn.textContent = 'Copiar';
+    cancelBtn.textContent = 'Fechar';
+    confirmBtn.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(value);
+        confirmBtn.textContent = '✓ Copiado';
+        toast('Copiado pro clipboard');
+        if (onConfirm) onConfirm(value);
+        setTimeout(() => {
+          confirmBtn.textContent = 'Copiar';
+          modal.classList.remove('show');
+        }, 900);
+      } catch(e) {
+        toast('Falha ao copiar · selecione manualmente');
+        $('#modalText').select();
+      }
+    };
+  } else {
+    confirmBtn.textContent = 'OK';
+    cancelBtn.textContent = 'Cancelar';
+    confirmBtn.onclick = () => {
+      onConfirm($('#modalText').value);
+      modal.classList.remove('show');
+    };
+  }
   modal.classList.add('show');
-  $('#modalConfirm').onclick = () => {
-    onConfirm($('#modalText').value);
-    modal.classList.remove('show');
-  };
 }
 $('#modalCancel').addEventListener('click', () => modal.classList.remove('show'));
 
+function buildMissingText() {
+  const lines = [];
+  let totalMissing = 0;
+
+  const sortedTeams = [...TEAMS].sort((a,b) => a.name.localeCompare(b.name, 'pt-BR'));
+  for (const t of sortedTeams) {
+    const missing = [];
+    for (let i = 1; i <= STICKERS_PER_TEAM; i++) {
+      if (!owned.has(`${t.code}-${i}`)) missing.push(i);
+    }
+    if (missing.length > 0) {
+      lines.push(`${t.code}: ${missing.join(', ')}`);
+      totalMissing += missing.length;
+    }
+  }
+
+  const missingSpec = [];
+  if (HAS_FWC_ZERO && !owned.has(`${SPECIALS_PREFIX}-0`)) missingSpec.push('00');
+  for (let i = 1; i <= SPECIALS_COUNT; i++) {
+    if (!owned.has(`${SPECIALS_PREFIX}-${i}`)) missingSpec.push(i);
+  }
+  if (missingSpec.length > 0) {
+    lines.push(`${SPECIALS_PREFIX}: ${missingSpec.join(', ')}`);
+    totalMissing += missingSpec.length;
+  }
+
+  const missingCC = [];
+  for (let i = 1; i <= COCACOLA_COUNT; i++) {
+    if (!owned.has(`${COCACOLA_PREFIX}-${i}`)) missingCC.push(i);
+  }
+  if (missingCC.length > 0) {
+    lines.push(`${COCACOLA_PREFIX} (Coca-Cola): ${missingCC.join(', ')}`);
+  }
+
+  const header = totalMissing === 0
+    ? '🏆 Já tenho todas as figurinhas oficiais!'
+    : `📋 Figurinhas que faltam (${totalMissing}):`;
+
+  return `${header}\n\n${lines.join('\n')}`;
+}
+
+$('#shareMissingBtn').addEventListener('click', () => {
+  const text = buildMissingText();
+  openModal(
+    'Faltantes pra trocar',
+    'Cole no Whats e mande pra galera.',
+    text,
+    null,
+    true,
+    true
+  );
+});
+
 $('#exportBtn').addEventListener('click', () => {
   const data = JSON.stringify({ v: 1, exported: new Date().toISOString(), owned: [...owned] }, null, 2);
-  openModal('Backup', 'Copie o texto abaixo e salve em um lugar seguro (Notas, iCloud, etc.).', data, () => {
-    navigator.clipboard?.writeText(data);
-    markExported();
-    toast('Copiado · backup registrado');
-  }, true);
+  openModal(
+    'Backup',
+    'Toque em Copiar e cole em um lugar seguro (Notas, iCloud, etc.).',
+    data,
+    () => markExported(),
+    true,
+    true
+  );
 });
 
 $('#importBtn').addEventListener('click', () => {
